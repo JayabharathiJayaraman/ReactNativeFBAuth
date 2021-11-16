@@ -1,21 +1,39 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import React, { useContext } from "react";
+import { AuthContext, AuthContextProvider } from "./src/components/contexts/AuthContext";
+import { StackScreens } from "./src/components/helpers/types";
+import HomeScreen from "./src/components/screens/HomeScreen";
+import LoginScreen from "./src/components/screens/LoginScreen";
+import RegisterScreen from "./src/components/screens/RegisterScreen";
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <AuthContextProvider>
+      <MainNavigator />
+    </AuthContextProvider>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export const MainNavigator = () => {
+  const StackNavigator = createNativeStackNavigator<StackScreens>();
+  const authContext = useContext(AuthContext);
+  return (
+    <NavigationContainer>
+      <StackNavigator.Navigator>
+        {!authContext?.isUserSignedIn && (
+          <>
+            <StackNavigator.Screen name="LoginScreen" component={LoginScreen} />
+            <StackNavigator.Screen
+              name="RegisterScreen"
+              component={RegisterScreen}
+            />
+          </>
+        )}
+        {authContext?.isUserSignedIn && (
+          <StackNavigator.Screen name="HomeScreen" component={HomeScreen} />
+        )}
+      </StackNavigator.Navigator>
+    </NavigationContainer>
+  );
+};
